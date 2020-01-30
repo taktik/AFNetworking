@@ -223,7 +223,9 @@ didCompleteWithError:(NSError *)error
     } else {
         dispatch_async(url_session_manager_processing_queue(), ^{
             NSError *serializationError = nil;
-            responseObject = [manager.responseSerializer responseObjectForResponse:task.response data:data error:&serializationError];
+            
+            //Bypass deserialization when accept is explicitely set to application/octet-stream
+            responseObject = [[task.originalRequest valueForHTTPHeaderField:@"Accept"] isEqualToString:@"application/octet-stream"]?data:[manager.responseSerializer responseObjectForResponse:task.response data:data error:&serializationError];
 
             if (self.downloadFileURL) {
                 responseObject = self.downloadFileURL;
